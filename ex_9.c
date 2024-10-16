@@ -8,9 +8,13 @@ unsigned int rndomnum, guess ;
 int result; 
 int max_att = 10;
 int attempts = 0;
+char play_again;
 
-srand(time(0));
-rndomnum = rand() % 100;
+do{
+    attempts = 0;    
+    srand(time(0));
+    rndomnum = rand() % 100;
+    
 printf("I have chosed the number now guess the number between 0 and 99 and try to beat me. you have %d tries.\n", max_att);
 
 while (attempts < max_att){
@@ -42,5 +46,13 @@ while (attempts < max_att){
         printf("nice try buddy you are out of attemps. the number i had was : %u\n",rndomnum);
     }
 }
-return 0;
+    printf ("do you want to play again (y/n)?");
+  while (getchar() != '\n'); 
+        scanf("%c", &play_again);
+
+    } while (play_again == 'y' || play_again == 'Y');  
+
+    printf("OK, thanks ! bye!\n");
+    return 0;
+
 }
