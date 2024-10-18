@@ -12,9 +12,12 @@ char play_again;
 
 do{
     attempts = 0;    
-    srand(time(0));
+    srand(time(NULL));
     rndomnum = rand() % 100;
-    
+
+printf("******************************************\n");
+printf("************** Game Started **************\n");
+printf("******************************************\n");
 printf("I have chosed the number now guess the number between 0 and 99 and try to beat me. you have %d tries.\n", max_att);
 
 while (attempts < max_att){
@@ -47,8 +50,10 @@ while (attempts < max_att){
     }
 }
     printf ("do you want to play again (y/n)?");
-  while (getchar() != '\n'); 
-        scanf("%c", &play_again);
+    while (getchar() != '\n'); 
+    scanf("%c", &play_again);
+
+     while (getchar() != '\n');
 
     } while (play_again == 'y' || play_again == 'Y');  
 
