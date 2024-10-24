@@ -21,17 +21,9 @@ for (int i = 0; str[i] != '\0'; i++)
 
 char str[50];
 printf("enter a sentence:");
-do
-{
-while (scanf("%s", str) == 1)
-{
+
+while (scanf("%s", str) == 1){
   printf("%s\n", str);
-  if (strchr(str, '\n') != NULL){
-  } else {
-    break;
-  }
-  while (getchar() != '\n');
 }
-} while (1);
     return 0;
 }
