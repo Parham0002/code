@@ -84,7 +84,7 @@ void func(char str[]);
 
 int main()
 {
-    char carh[66];
+    char carh[20];
 
     (void)printf("what is your string?\n");
 
@@ -97,7 +97,11 @@ int main()
 
 void func(char str[])
 {
+    for (int i = 0; i < 20; i++)
     
-    printf("%s", str);
+    {
+       printf("%s", str);
+    }
+    
 
 }
