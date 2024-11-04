@@ -40,11 +40,12 @@ typedef struct {
 }
 */
 #include <stdio.h>
+#define LEN 16
 
 typedef struct {
     int age;
     float height;
-    char name[16];
+    char name[LEN];
 } person_t;
 
 void func(person_t *p);
