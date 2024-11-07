@@ -18,7 +18,7 @@ int arrt[LEN] = {7, 6, 8, 9, 5};
 int *arroptr = arro;
 int *arrtptr = arrt;
 
-int arrthre[LENN] = ;
+int arrthre[LENN] ;
 
 int size = LEN;
 
