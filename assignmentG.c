@@ -44,36 +44,51 @@ int is_valid_format(const char *personnum);
 int calculate_control_digit(const char *personnum);
 int is_valid_personnum(const char *personnum);
 
+
 int main() {
     char personnum[PERSONNUM_LENGTH + 2];  // +2 to account for null terminator and newline character
+    char try_again;
 
+    do{
     printf("Enter Swedish personal identity number (YYMMDD-NNNN): ");
     fgets(personnum, sizeof(personnum), stdin);
 
     // Remove any newline character from the input
     personnum[strcspn(personnum, "\n")] = '\0';
 
-    // Error: Print the processed input
-    printf("Error: Processed input is '%s' with length %zu\n", personnum, strlen(personnum));
-
-    if (is_valid_format(personnum)) {
+    // Error: check if the input lenght is correct
+   if (is_valid_format(personnum)) {
+        
         if (is_valid_personnum(personnum)) {
             printf("The personal number %s is valid.\n", personnum);
         } else {
             printf("The personal number %s is invalid.\n", personnum);
         }
     } else {
-        printf("Invalid format! Please enter in format YYMMDD-NNNN.\n");
+        printf("Error: Invalid format! Please enter in format YYMMDD-NNNN.\n");
     }
 
+    // Promp the user to try again
+    printf("do you want to check another personnummer ?(y/n)");
+    try_again = getchar(); // Read the user input
+
+    // Clear any remaining characters in the input buffer
+    while (getchar() != '\n');
+
+    
+    }while (try_again== 'y' || try_again == 'Y');
+
+ printf("Okey bye!\n");
+
     return 0;
+
 }
 
 // Check if the input format is valid
 int is_valid_format(const char *personnum) {
     // Check length; should be exactly PERSONNUM_LENGTH characters
     if (strlen(personnum) != PERSONNUM_LENGTH) {
-        printf("Error: Length check failed.\n");  // Debug information
+        printf("Error: Length check failed it has to be 11.\n");  // Debug information
         return 0;
     }
 
