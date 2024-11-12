@@ -1,3 +1,63 @@
+/**
+ * @file ex32.c
+ * @brief Demonstrates the use of function pointers and sorting algorithms in C.
+ *
+ * This file includes functions for generating random arrays, printing arrays,
+ * swapping two integers, and sorting arrays in ascending and descending order
+ * using function pointers.
+ */
+
+/**
+ * @brief Generates an array of random integers.
+ *
+ * @param arr The array to be filled with random numbers.
+ * @param size The size of the array.
+ */
+void randommm(int *arr, int size);
+
+/**
+ * @brief Prints the elements of an array.
+ *
+ * @param arr The array to be printed.
+ * @param size The size of the array.
+ */
+void printarr(int *arr, int size);
+
+/**
+ * @brief Swaps the values of two integers.
+ *
+ * @param x A pointer to the first integer.
+ * @param y A pointer to the second integer.
+ */
+void swapp(int *x, int *y);
+
+/**
+ * @brief Sorts an array using a comparison function.
+ *
+ * @param arr The array to be sorted.
+ * @param size The size of the array.
+ * @param compare A function pointer to the comparison function.
+ */
+void sort_array(int *arr, int size, compare_t compare);
+
+/**
+ * @brief Compares two integers in ascending order.
+ *
+ * @param a The first integer.
+ * @param b The second integer.
+ * @return true if a is greater than b, false otherwise.
+ */
+bool compare_asc(int a, int b);
+
+/**
+ * @brief Compares two integers in descending order.
+ *
+ * @param a The first integer.
+ * @param b The second integer.
+ * @return true if a is less than b, false otherwise.
+ */
+bool compare_desc(int a, int b);
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -111,6 +171,7 @@ bool compare_asc(int a, int b)
 {
     return a > b; 
 }
+
 
 bool compare_desc(int a, int b)
 {

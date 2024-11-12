@@ -40,9 +40,9 @@
 #define MODULO 10            // Modulus value for Luhn algorithm
 
 // Functions
-int is_valid_format(const char *personnum);
+int valid_format(const char *personnum);
 int calculate_control_digit(const char *personnum);
-int is_valid_personnum(const char *personnum);
+int valid_personnum(const char *personnum);
 
 
 int main() {
@@ -57,9 +57,9 @@ int main() {
     personnum[strcspn(personnum, "\n")] = '\0';
 
     // Error: check if the input lenght is correct
-   if (is_valid_format(personnum)) {
+   if (valid_format(personnum)) {
         
-        if (is_valid_personnum(personnum)) {
+        if (valid_personnum(personnum)) {
             printf("The personal number %s is valid.\n", personnum);
         } else {
             printf("The personal number %s is invalid.\n", personnum);
@@ -85,7 +85,7 @@ int main() {
 }
 
 // Check if the input format is valid
-int is_valid_format(const char *personnum) {
+int valid_format(const char *personnum) {
     // Check length; should be exactly PERSONNUM_LENGTH characters
     if (strlen(personnum) != PERSONNUM_LENGTH) {
         printf("Error: Length check failed it has to be 11.\n");  // Debug information
@@ -139,7 +139,7 @@ int calculate_control_digit(const char *personnum) {
 }
 
 // Validate the personal identity number by checking the control digit
-int is_valid_personnum(const char *personnum) {
+int valid_personnum(const char *personnum) {
     // Extract the last digit as the provided control digit
     int provided_control_digit = personnum[PERSONNUM_LENGTH - 1] - '0';
 
