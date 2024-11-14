@@ -70,8 +70,8 @@
 
 int main()
 {
-  FILE *file = fopen("story.txt", "r");
-   
+    FILE *file = fopen("story.txt", "r");
+
     if (file == NULL)
     {
         printf("Failed to open story.txt\n");
@@ -81,13 +81,13 @@ int main()
     char buffer[100];
     int line_count = 0;
 
-    while (fgets(buffer, sizeof(buffer), file) != NULL){
+    while (fgets(buffer, sizeof(buffer), file) != NULL)
+    {
 
         line_count++;
 
         printf("Line %d: %s", line_count, buffer);
     }
-    
 
     fseek(file, 0, SEEK_END);
 
@@ -96,8 +96,7 @@ int main()
     printf("\nFile size: %ld bytes\n", size);
 
     printf("\nTotal number of lines in file: %d\n", line_count);
-
     fclose(file);
 
-     return 0;
+    return 0;
 }
