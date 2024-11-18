@@ -171,11 +171,11 @@ int calculate_control_digit(const char *personnum)
 bool valid_personnum(const char *personnum)
 {
     // Extract the last digit as the provided control digit
-    int provided_control_digit = personnum[PERSONNUM_LENGTH - 1] - '0';
+    int last_digit = personnum[PERSONNUM_LENGTH - 1] - '0';
 
     // Calculate the correct control digit
     int calculated_control_digit = calculate_control_digit(personnum);
 
     // Compare provided and calculated control digits
-    return provided_control_digit == calculated_control_digit;
+    return last_digit == calculated_control_digit;
 }

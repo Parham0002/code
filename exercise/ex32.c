@@ -6,6 +6,10 @@
  * swapping two integers, and sorting arrays in ascending and descending order
  * using function pointers.
  */
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <stdbool.h>
 
 /**
  * @brief Generates an array of random integers.
@@ -58,11 +62,6 @@ bool compare_asc(int a, int b);
  */
 bool compare_desc(int a, int b);
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <stdbool.h>
-
 #define LEN 5
 
 typedef bool (*compare_t)(int, int);
@@ -71,7 +70,7 @@ void randommm(int *arr, int size);
 
 void printarr(int *arr, int size);
 
-void swapp (int *x, int *y);
+void swapp(int *x, int *y);
 
 void sort_array(int *arr, int size, compare_t compare);
 
@@ -92,11 +91,11 @@ int main()
 
     void (*rndmptr[2])(int *, int) = {randommm, printarr};
 
-    void (*swappptr)(int * , int *) = swapp;
+    void (*swappptr)(int *, int *) = swapp;
 
-    void (*sort_arrayptr)(int *, int , compare_t compare) = sort_array;
+    void (*sort_arrayptr)(int *, int, compare_t compare) = sort_array;
 
-    bool (*compare_asc_descptr[])(int , int ) = {compare_asc, compare_desc};
+    bool (*compare_asc_descptr[])(int, int) = {compare_asc, compare_desc};
 
     srand(time(NULL));
 
@@ -106,7 +105,7 @@ int main()
 
     rndmptr[1](arr, size);
 
-    printf("number before swap: %d %d\n", x , y);
+    printf("number before swap: %d %d\n", x, y);
 
     swappptr(&x, &y);
 
@@ -127,13 +126,13 @@ int main()
     return 0;
 }
 
-void randommm(int *arr, int size){
+void randommm(int *arr, int size)
+{
 
     for (int i = 0; i < size; i++)
     {
-        arr[i] = rand () % 100;
+        arr[i] = rand() % 100;
     }
-
 }
 void printarr(int *arr, int size)
 {
@@ -145,11 +144,12 @@ void printarr(int *arr, int size)
     printf("\n");
 }
 
-void swapp(int *x, int *y) {
+void swapp(int *x, int *y)
+{
 
-   int temp = *x;
-   *x = *y;
-   *y = temp;
+    int temp = *x;
+    *x = *y;
+    *y = temp;
 }
 
 void sort_array(int *arr, int size, compare_t compare)
@@ -158,7 +158,7 @@ void sort_array(int *arr, int size, compare_t compare)
     {
         for (int j = 0; j < size - 1 - i; j++)
         {
-        
+
             if (compare(arr[j], arr[j + 1]))
             {
                 swapp(&arr[j], &arr[j + 1]);
@@ -169,9 +169,8 @@ void sort_array(int *arr, int size, compare_t compare)
 
 bool compare_asc(int a, int b)
 {
-    return a > b; 
+    return a > b;
 }
-
 
 bool compare_desc(int a, int b)
 {
