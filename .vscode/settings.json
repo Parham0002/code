@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "numbers": "c",
-        "ascending.h": "c"
+        "ascending.h": "c",
+        "stdio.h": "c",
+        "stdlib.h": "c"
     }
 }
