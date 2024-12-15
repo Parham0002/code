@@ -4,6 +4,7 @@
         "ascending.h": "c",
         "stdio.h": "c",
         "stdlib.h": "c",
+<<<<<<< HEAD
         "iostream": "cpp",
         "ostream": "cpp",
         "array": "cpp",
@@ -49,5 +50,8 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "typeinfo": "cpp"
+=======
+        "cstdint": "c"
+>>>>>>> bcdd32617d5f7db2810f414267fe3c2a22ccabd3
     }
 }
