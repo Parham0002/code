@@ -10,9 +10,9 @@ int main()
 {
     typedef struct
     {
-        std::string name;
         int age;
         int id;
+        std::string name;
     } person_t;
 
     person_t arr[3];
@@ -23,7 +23,6 @@ int main()
         std::cin >> arr[i].name >> arr[i].age >> arr[i].id;
     }
 
-    // Sort persons according to their ids using pointers
     for (int i = 0; i < 2; i++)
     {
         for (int j = 0; j < 2 - i; j++)
@@ -37,7 +36,6 @@ int main()
         }
     }
 
-    // Print sorted persons using pointers
     for (int i = 0; i < 3; i++)
     {
         std::cout << "Person " << i + 1 << ": "
