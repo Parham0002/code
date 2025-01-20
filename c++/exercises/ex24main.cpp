@@ -26,7 +26,7 @@ int main()
     std::cout << "Stack after clearing: " << stack << std::endl;
 
     // Test popping from an empty stack (should assert)
-    // Uncomment the next line to see the assertion failure
+
     // stack.pop();
 
     std::cout << "All tests passed successfully." << std::endl;
