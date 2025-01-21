@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /*
 Make an uncopyable template queue class using a linked list to provide the following functions:
 A function to enqueue a data element to a queue.
@@ -7,13 +6,6 @@ A function to get the number of data elements stored in a queue.
 A function to clear a queue.
 Test the class using assertions and ensure that all the allocated memory blocks are released.*/
 
-#include <iostream>
-
-template <typename t>
-class queue
-{
-};
-=======
 #include <iostream>
 #include <cassert>
 
@@ -140,4 +132,3 @@ int main()
     std::cout << "all thest passed successfully" << std::endl;
     return 0;
 }
->>>>>>> 99788fd532fcad26a53bae76f90989c80f35445f
