@@ -13,6 +13,7 @@ Test the class using assertions and ensure that all the allocated memory blocks 
 #include <cassert>
 #include <utility>
 #include <exception>
+#include <type_traits>
 
 // Exception class for queue-specific errors
 class QueueException : public std::exception

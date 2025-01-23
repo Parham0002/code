@@ -8,6 +8,7 @@ Test the class using assertions and ensure that all the allocated memory blocks 
 
 #include <iostream>
 #include <cassert>
+#include <type_traits>
 
 template <typename T>
 class Stack

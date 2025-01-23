@@ -29,3 +29,4 @@ int main(void)
 
     return 0;
 }
+int main template <ttoe's cpe
