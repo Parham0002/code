@@ -57,7 +57,7 @@ $(TEST_EXE): $(FIZZBUZZ_OBJ) $(UNITY_OBJ) $(TEST_OBJ)
 
 # Run the main program
 run: $(MAIN_EXE)
-	$(MAIN_EXE) $(NUM)
+	$(MAIN_EXE)
 
 # Run the test program
 check: $(TEST_EXE)

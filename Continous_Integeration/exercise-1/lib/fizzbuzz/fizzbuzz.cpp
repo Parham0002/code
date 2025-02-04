@@ -1,6 +1,9 @@
 #include <cstdio>
+#include <climits>
 #include <cstring>
 #include "fizzbuzz.h"
+
+#define STRINGIFY(x) #x
 
 #define FIZZ "Fizz"
 constexpr int FIZZ_DIV = 3;
@@ -11,7 +14,7 @@ constexpr int BUZZ_DIV = 5;
 #define FIZZBUZZ "FizzBuzz"
 constexpr int FIZZBUZZ_DIV = (FIZZ_DIV * BUZZ_DIV);
 
-static char result[sizeof(FIZZBUZZ)];
+static char result[sizeof(FIZZBUZZ) + 2];
 
 char *fizz_buzz(int num)
 {
