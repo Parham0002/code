@@ -22,12 +22,12 @@ build/test: build/fizzbuzz.o build/unity.o build/test.o
 	g++ -o build/test build/fizzbuzz.o build/unity.o build/test.o
 
 # Compile test.cpp
-build/test.o:  test/test.cpp 
+build/test.o:  test/test.cpp lib/fizzbuzz/fizzbuzz.h lib/unity/unity.h lib/unity/unity_internals.h
 	gcc -c test/test.cpp -o build/test.o -I./lib/fizzbuzz -I./lib/unity
 
 # Rule to run the main program
 run: build build/app
-	@./build/app 
+	@./build/app $(NUM)
 
 check: build build/test
 	@./build/test

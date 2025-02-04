@@ -48,8 +48,8 @@ $(BUILD_DIR)/%.o: $(UNITY_DIR)/%.cpp | $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Build the main program
-$(MAIN_EXE): $(FIZZBUZZ_OBJ) $(UNITY_OBJ) $(MAIN_OBJ)
-	$(CXX) -o $(MAIN_EXE) $(FIZZBUZZ_OBJ) $(UNITY_OBJ) $(MAIN_OBJ)
+$(MAIN_EXE): $(FIZZBUZZ_OBJ) $(MAIN_OBJ)
+	$(CXX) -o $(MAIN_EXE) $(FIZZBUZZ_OBJ) $(MAIN_OBJ)
 
 # Build the test program
 $(TEST_EXE): $(FIZZBUZZ_OBJ) $(UNITY_OBJ) $(TEST_OBJ)
@@ -57,7 +57,7 @@ $(TEST_EXE): $(FIZZBUZZ_OBJ) $(UNITY_OBJ) $(TEST_OBJ)
 
 # Run the main program
 run: $(MAIN_EXE)
-	$(MAIN_EXE)
+	$(MAIN_EXE) $(NUM)
 
 # Run the test program
 check: $(TEST_EXE)
