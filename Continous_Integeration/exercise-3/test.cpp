@@ -8,5 +8,14 @@ TEST(mytest, emptytest)
 
 TEST(mytest, nametest)
 {
-    EXPECT_EQ("Hello,Bob.", greet("Bob"));
+    EXPECT_EQ("Hello, Bob.", greet("Bob"));
+}
+
+TEST(mytest, capitalname){
+
+    EXPECT_EQ("HELLO JERRY.", greet("JERRY"));
+}
+
+TEST(mytest, twonames){
+    EXPECT_EQ("Hello, Jill and Jane.", greet("Jill, Jane"));
 }
