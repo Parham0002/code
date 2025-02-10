@@ -1,0 +1,4 @@
+/home/parham/code/code/Continous_Integeration/exercise-5/build/CMakeFiles/QueueTest.dir
+/home/parham/code/code/Continous_Integeration/exercise-5/build/CMakeFiles/test.dir
+/home/parham/code/code/Continous_Integeration/exercise-5/build/CMakeFiles/edit_cache.dir
+/home/parham/code/code/Continous_Integeration/exercise-5/build/CMakeFiles/rebuild_cache.dir

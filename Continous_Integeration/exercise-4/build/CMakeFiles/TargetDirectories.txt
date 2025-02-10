@@ -1,0 +1,5 @@
+/home/parham/code/code/Continous_Integeration/exercise-4/build/CMakeFiles/LinkedList.dir
+/home/parham/code/code/Continous_Integeration/exercise-4/build/CMakeFiles/LinkedListTest.dir
+/home/parham/code/code/Continous_Integeration/exercise-4/build/CMakeFiles/test.dir
+/home/parham/code/code/Continous_Integeration/exercise-4/build/CMakeFiles/edit_cache.dir
+/home/parham/code/code/Continous_Integeration/exercise-4/build/CMakeFiles/rebuild_cache.dir

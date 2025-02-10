@@ -1,3 +1,3 @@
-/home/parham/code/Continous_Integeration/exercise-3/build/CMakeFiles/test.dir
-/home/parham/code/Continous_Integeration/exercise-3/build/CMakeFiles/edit_cache.dir
-/home/parham/code/Continous_Integeration/exercise-3/build/CMakeFiles/rebuild_cache.dir
+/home/parham/code/code/Continous_Integeration/exercise-3/build/CMakeFiles/test.dir
+/home/parham/code/code/Continous_Integeration/exercise-3/build/CMakeFiles/edit_cache.dir
+/home/parham/code/code/Continous_Integeration/exercise-3/build/CMakeFiles/rebuild_cache.dir
