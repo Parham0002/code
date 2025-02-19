@@ -202,8 +202,8 @@ print(gift_list)
  
 
 # 27. Insert "slippers" before "jam" in the gift_list
-'''gift_list = ['socks', '4K drone', 'wine', 'jam']
-<ADD CODE HERE>
+gift_list = ['socks', '4K drone', 'wine', 'jam']
+gift_list.insert(3, 'slippers')
 print(gift_list)
 
  
@@ -211,7 +211,7 @@ print(gift_list)
 
 # 28. Assign when Plato was born to answer and print it out
 plato = {"name": "Plato", "country": "Ancient Greece", "born": -427, "teacher": "Socrates", "student": "Aristotle"}
-answer = <ADD CODE HERE>
+answer = plato["born"]
 print(answer)
 
  
@@ -219,7 +219,7 @@ print(answer)
 
 # 29. Change Plato's birth year to 428 B.C.
 plato = {"name": "Plato", "country": "Ancient Greece", "born": -428, "teacher": "Socrates", "student": "Aristotle"}
-<ADD CODE HERE>
+plato["born"] = 428
 print(plato["born"])
 
  
@@ -227,7 +227,7 @@ print(plato["born"])
 
 # 30. Add an item with Plato's work to the dictionary with the key "work" with the items ["Apology", "Phaedo", "Republic", "Symposium"]
 plato = {"name": "Plato", "country": "Ancient Greece", "born": -428, "teacher": "Socrates", "student": "Aristotle"}
-<ADD CODE HERE>
+plato.update({"work":["Apology", "Phaedo", "Republic", "Symposium"] })
 print(plato)
 
  
@@ -237,7 +237,7 @@ print(plato)
 # 31. # Divide a by b and assing to the variable result
 a = 10
 b = 3
-result = <ADD CODE HERE>
+result = a / b
 print(result)
 
  
@@ -246,7 +246,7 @@ print(result)
 # 32. # Divide a by b using integer division (//) and assing to the variable result
 a = 10
 b = 3
-result = <ADD CODE HERE>
+result = a // b
 print(result)
 
  
@@ -254,7 +254,7 @@ print(result)
 
 # 33. Add 15 to the variable speed using +=
 speed = 75
-<ADD CODE HERE>
+speed += 15
 print(speed)
 
  
@@ -263,14 +263,14 @@ print(speed)
 # 34. Compare if a and b are equal
 a = 10
 b = 2*5
-answer = <ADD CODE HERE>
+answer = (a == b)
 print(answer)
 
  
 
 
 # 35. Write one million using exponentiation
-answer = 10**<ADD CODE HERE>
+answer = 10**6
 print(answer)
 
  
@@ -279,7 +279,7 @@ print(answer)
 # 36. Compare if both a and b are true
 a = True
 b = (10 == 2*5)
-answer = <ADD CODE HERE>
+answer = (a == b)
 print(answer)
 
  
@@ -287,8 +287,8 @@ print(answer)
 
 # 37. Compare if any value of the values in fruits is equal to "Melon" and print out the result
 fruits = ["Mango", "Kiwi", "Melon", "Cherry"]
-answer_1 = <ADD CODE HERE>
-answer_2 = <ADD CODE HERE>
-answer_3 = <ADD CODE HERE>
-answer_4 = <ADD CODE HERE>
-print(answer_1, answer_2, answer_3, answer_4) '''
+answer_1 = (fruits[0] == "Melon")
+answer_2 = (fruits[1] == "Melon")
+answer_3 = (fruits[2] == "Melon")
+answer_4 = (fruits[3] == "Melon")
+print(answer_1, answer_2, answer_3, answer_4) 
