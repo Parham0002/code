@@ -1,8 +1,25 @@
+/**
+ * @file CircularQueue.h
+ * @author Parham Rezaei (knightpslow@gmail.com)
+ * @brief A template-based Circular Queue implemented using a Circular Linked List.
+ *
+ * This class implements a circular queue where:
+ * - The oldest data is overwritten when full.
+ * - The queue size is defined at runtime and can be resized.
+ * - It supports arithmetic types for computing the average.
+ * - The queue is uncopyable (copy constructor and copy assignment are deleted).
+ * - The queue is movable (move constructor and move assignment are implemented).
+ *
+ * @note Requires C++14 or later.
+ * @date 2024-02-20
+ */
+
 #ifndef CIRCULARQUEUE_H
 #define CIRCULARQUEUE_H
 
 #include <iostream>
 #include <type_traits>
+#include <stdexcept>
 
 template <typename T>
 class CircularQueue
@@ -12,93 +29,120 @@ private:
     {
         T data;
         Node *next;
-        Node(T value) : data(value), next(nullptr) {}
+        Node() : data(T()), next(nullptr) {}
+        Node(const T &value) : data(value), next(nullptr) {}
     };
-
-    Node *head;
-    Node *tail;
-    int capacity;
-    int count;
+    Node *head{nullptr};
+    Node *tail{nullptr};
+    size_t capacity{0};
+    size_t count{0};
 
 public:
-    explicit CircularQueue(int size) : head(nullptr),
-                                       tail(nullptr),
-                                       capacity(size),
-                                       count(0)
+    // Prevent copying
+    CircularQueue(const CircularQueue &) = delete;
+    CircularQueue &operator=(const CircularQueue &) = delete;
+
+    // Allow moving
+    CircularQueue(CircularQueue &&other) noexcept
+        : head(other.head), tail(other.tail), capacity(other.capacity), count(other.count)
     {
-        if (size < 3)
-            throw std::invalid_argument("Size must be greater than 2");
-        for (int i = 0; i < size; i++)
-        {
-            Node *newNode = new Node(T());
-            if (!head)
-            {
-                head = tail = newNode;
-                tail->next = head;
-            }
-            else
-            {
-                tail->next = newNode;
-                tail = newNode;
-                tail->next = head;
-            }
-        }
+        other.head = other.tail = nullptr;
+        other.count = 0;
     }
 
+    CircularQueue &operator=(CircularQueue &&other) noexcept
+    {
+        if (this != &other)
+        {
+            // Delete existing nodes
+            this->~CircularQueue();
+
+            // Move from other
+            head = other.head;
+            tail = other.tail;
+            capacity = other.capacity;
+            count = other.count;
+            other.head = other.tail = nullptr;
+            other.count = 0;
+        }
+        return *this;
+    }
+
+    // Constructor
+    explicit CircularQueue(size_t size) : head(nullptr), tail(nullptr), capacity(size), count(0)
+    {
+        if (size < 3)
+        {
+            throw std::invalid_argument("Size must be greater than 2");
+        }
+
+        head = new (std::nothrow) Node(T());
+        if (head == nullptr)
+        {
+            throw std::bad_alloc();
+        }
+        tail = head;
+
+        for (size_t i = 1; i < size; i++)
+        {
+            tail->next = new (std::nothrow) Node;
+            if (tail->next == nullptr)
+            {
+                // we need to delete from head to tail
+                while (head != nullptr)
+                {
+                    tail = head;
+                    head = head->next;
+                    delete tail;
+                }
+
+                throw std::bad_alloc();
+            }
+            tail = tail->next;
+        }
+
+        tail->next = head;
+    }
     ~CircularQueue()
     {
-        while (head && count > 0)
+        for (size_t i = 0; i < capacity; ++i)
         {
-            Node *temp = head;
+            tail = head;
             head = head->next;
-            delete temp;
-            count--;
+            delete tail;
         }
     }
 
     void enqueue(T value)
     {
-        Node *newNode = new Node(value);
-
         if (count == 0)
         {
-            head = tail = newNode;
+            head->data = value;
+            tail = head->next;
+        }
+        else if (count == capacity)
+        {
+            tail->data = value;
+            tail = tail->next;
+            head = head->next; // Move head forward when overwriting
         }
         else
         {
-            tail->next = newNode;
-            tail = newNode;
+            tail->data = value;
+            tail = tail->next;
         }
 
-        if (count == capacity)
-        {
-            Node *temp = head;
-            head = head->next;
-            delete temp;
-        }
-        else
-        {
+        if (count < capacity)
             count++;
-        }
     }
-
     T dequeue()
     {
         if (count == 0)
         {
             throw std::runtime_error("Queue is empty");
         }
-
         T value = head->data;
-        Node *temp = head;
         head = head->next;
-
-        if (head == nullptr)
-        {
-            tail = nullptr;
-        }
-
-        delete temp;
         count--;
         return value;
     }
@@ -113,13 +157,23 @@ public:
         return count;
     }
 
-    void resize(int newSize)
+    void resize(size_t newSize)
     {
         if (newSize < 3)
+        {
             throw std::invalid_argument("Size must be greater than 2");
+        }
         while (count > newSize)
-            dequeue(); // Remove oldest elements
+        {
+            dequeue();
+        }
         capacity = newSize;
+    }
+    
+    void clear()
+    {
+        count = 0;
+        head = tail->next;
     }
 
     template <typename U = T>
@@ -127,15 +181,19 @@ public:
     {
         if (count == 0)
             return 0.0;
+
         double sum = 0;
-        Node *temp = head;
-        for (int i = 0; i < count; i++)
+        Node *current = head;
+        int items = count;
+        while (items > 0)
         {
-            sum += temp->data;
-            temp = temp->next;
+            sum += current->data;
+            current = current->next;
+            items--;
         }
         return sum / count;
     }
 };
 
-#endif
+#endif // CIRCULARQUEUE_H
+
