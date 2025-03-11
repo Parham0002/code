@@ -47,26 +47,34 @@ TYPED_TEST(CircularQueueTest, EnqueueIncreasesSize)
 }
 
 //  Test Enqueue & Dequeue (Handles Different Data Types Correctly)
-TYPED_TEST(CircularQueueTest, EnqueueDequeue) {
+TYPED_TEST(CircularQueueTest, EnqueueDequeue)
+{
     CircularQueue<TypeParam> queue(3);
-    if constexpr (std::is_same_v<TypeParam, std::string>) {
+    if constexpr (std::is_same_v<TypeParam, std::string>)
+    {
         queue.enqueue("test");
         EXPECT_EQ(queue.dequeue(), "test");
-    } else {
+    }
+    else
+    {
         queue.enqueue(TypeParam{42});
         EXPECT_EQ(queue.dequeue(), TypeParam{42});
     }
 }
 
-TYPED_TEST(CircularQueueTest, OverwriteOldestData) {
+TYPED_TEST(CircularQueueTest, OverwriteOldestData)
+{
     CircularQueue<TypeParam> queue(3);
-    if constexpr (std::is_same_v<TypeParam, std::string>) {
+    if constexpr (std::is_same_v<TypeParam, std::string>)
+    {
         queue.enqueue("A");
         queue.enqueue("B");
         queue.enqueue("C");
         queue.enqueue("D");
         EXPECT_EQ(queue.dequeue(), "B");
-    } else {
+    }
+    else
+    {
         queue.enqueue(TypeParam{1});
         queue.enqueue(TypeParam{2});
         queue.enqueue(TypeParam{3});
@@ -129,23 +137,26 @@ TYPED_TEST(CircularQueueTest, ClearQueue)
     }
 }
 
-template<typename T>
-struct TestValueProvider {
+template <typename T>
+struct TestValueProvider
+{
     static T getValue(int n = 1);
 };
 
-template<>
-struct TestValueProvider<std::string> {
+template <>
+struct TestValueProvider<std::string>
+{
     static std::string getValue(int n = 1) { return "Value" + std::to_string(n); }
 };
 
-template<>
-struct TestValueProvider<int> {
+template <>
+struct TestValueProvider<int>
+{
     static int getValue(int n = 1) { return n; }
 };
 
-template<>
-struct TestValueProvider<float> {
-    static float getValue(int n = 1) { return static_cast<float>(n); }
-};
-
+int main(int argc, char **argv)
+{
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}

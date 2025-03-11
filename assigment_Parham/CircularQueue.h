@@ -29,8 +29,8 @@ private:
     {
         T data;
         Node *next;
-        Node() : data(T()), next(nullptr) {}
-        Node(const T &value) : data(value), next(nullptr) {}
+        Node() : data(T()), next(this) {}
+        Node(const T &value) : data(value), next(this) {}
     };
     Node *head{nullptr};
     Node *tail{nullptr};
@@ -141,9 +141,16 @@ public:
         {
             throw std::runtime_error("Queue is empty");
         }
+
         T value = head->data;
-        head = head->next;
+        head = head->next; // Move head forward
         count--;
+
+        if (count == 0)
+        {
+            tail = head; // Reset tail when empty
+        }
+
         return value;
     }
 
@@ -157,23 +164,53 @@ public:
         return count;
     }
 
-    void resize(size_t newSize)
+    void resize(int newSize)
     {
         if (newSize < 3)
-        {
             throw std::invalid_argument("Size must be greater than 2");
-        }
-        while (count > newSize)
+
+        freeNodes(); // Safely delete old nodes
+
+        // Reinitialize with new size
+        capacity = static_cast<size_t>(newSize);
+        head = new Node();
+        tail = head;
+
+        for (size_t i = 1; i < capacity; ++i)
         {
-            dequeue();
+            tail->next = new Node();
+            tail = tail->next;
         }
-        capacity = newSize;
+        tail->next = head; // Complete the circular link
+
+        count = 0; // Reset count
     }
-    
     void clear()
     {
+        Node *current = head;
+        for (size_t i = 0; i < capacity; ++i)
+        {
+            current->data = T(); // Reset each node's data to default
+            current = current->next;
+        }
         count = 0;
-        head = tail->next;
+        tail = head; // Reset tail to head (makes the queue empty)
+    }
+
+    // Helper function for safe node deletion
+    void freeNodes()
+    {
+        if (!head)
+            return;
+
+        Node *current = head;
+        for (size_t i = 0; i < capacity; ++i)
+        {
+            Node *temp = current;
+            current = current->next;
+            delete temp;
+        }
+        head = tail = nullptr;
     }
 
     template <typename U = T>
@@ -196,4 +233,3 @@ public:
 };
 
 #endif // CIRCULARQUEUE_H
-
