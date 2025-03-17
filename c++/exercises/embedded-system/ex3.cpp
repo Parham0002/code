@@ -9,7 +9,7 @@ class stack
 {
 private:
     std::mutex mtx;
-    std::condition_variable cv_push, cv_pop;
+    std::condition_variable cv;
     int *arr;
     int top;
     int capacity;
@@ -31,78 +31,74 @@ public:
 
     void push(int value)
     {
+        std::unique_lock<std::mutex> lock(mtx);
+
         if (top == capacity - 1)
         {
             throw std::runtime_error("Stack is full");
         }
 
-        std::unique_lock<std::mutex> lock(mtx);
-        cv_push.wait(lock, [this]
-                     { return top < capacity - 1; });
+        cv.wait(lock, [&]
+                { return top < capacity - 1; });
+
         arr[++top] = value;
         std::cout << "Pushed " << value << " to stack" << std::endl;
-        cv_push.notify_all();
+
+        cv.notify_all();
     }
 
-    int pop(int value)
+    int pop()
     {
-        if (top == -1)
+        std::unique_lock<std::mutex> lock(mtx);
+
+        if (top < 0)
         {
             throw std::runtime_error("Stack is empty");
         }
-        std::unique_lock<std::mutex> lock(mtx);
-        cv_pop.wait(lock, [this]
-                    { return top >= 0; });
-        std::cout << "Popped " << arr[top--] << " from stack" << std::endl;
-        cv_pop.notify_all();
+
+        cv.wait(lock, [&]
+                { return top >= 0; });
+
+        int value = arr[top--];
+        std::cout << "Popped " << value << " from stack" << std::endl;
+
+        cv.notify_all();
+
         return value;
-    }
-    friend std::ostream &operator<<(std::ostream &os, const stack &s)
-    {
-        os << "Stack: ";
-        for (int i = 0; i <= s.top; i++)
-        {
-            os << s.arr[i] << " ";
-        }
-        return os;
-    }
-
-    int size() const
-    {
-        return top + 1;
-    }
-
-    bool empty() const
-    {
-        return top == -1;
-    }
-
-    bool full() const
-    {
-        return top == capacity - 1;
     }
 };
 
-void push_thread(stack &s){
-    for (int i = 0; i < 10; i++)
+void producer(stack &s, int id)
+{
+    for (int i = 0; i < 5; ++i)
     {
-        s.push(i);
+        s.push(id * 10 + i); // Push unique values
         std::this_thread::sleep_for(std::chrono::seconds(5));
     }
 }
-void pop_thread(stack &s){
-    for (int i = 0; i < 10; i++)
+
+void consumer(stack &s, int id)
+{
+    for (int i = 0; i < 5; ++i)
     {
-        s.pop(i);
+        int value = s.pop(); 
+        std::cout << "Consumer " << id << " popped: " << value << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(5));
     }
 }
 int main()
 {
     stack s(5);
-    std::thread t1(push_thread, std::ref(s));
-    std::thread t2(pop_thread, std::ref(s));
-    t1.join();
-    t2.join();
+
+    std::thread producer1(producer, std::ref(s), 1);
+    std::thread producer2(producer, std::ref(s), 2);
+    std::thread consumer1(consumer, std::ref(s), 1);
+    std::thread consumer2(consumer, std::ref(s), 2);
+
+    producer1.join();
+    producer2.join();
+    consumer1.join();
+    consumer2.join();
+    
     return 0;
 }
