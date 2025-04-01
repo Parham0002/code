@@ -22,7 +22,7 @@
 // led0 === red_led
 // led1 === green_led
 // led2 === blue_led
-#define RED_LED_NODE DT_ALIAS(led0) // The devicetree node identifier for the "led0" alias.
+#define RED_LED_NODE DT_ALIAS(led2) // The devicetree node identifier for the "led0" alias.
 
 int main(void)
 {
