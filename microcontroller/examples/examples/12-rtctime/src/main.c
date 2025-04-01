@@ -21,7 +21,7 @@ void app_main(void)
         .tm_sec = 10,
         .tm_min = 10,
         .tm_hour = 10,
-        .tm_mday = 21,
+        .tm_mday = 27,
         .tm_mon = 3 - 1,
         .tm_year = 2025 - 1900,
     }; // 2025-03-21 10:10:10

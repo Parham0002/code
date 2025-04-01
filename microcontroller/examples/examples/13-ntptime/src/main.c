@@ -20,8 +20,8 @@
 #include "esp_event.h"
 #include "nvs_flash.h"
 
-#define WIFI_SSID "MaxPlus"
-#define WIFI_PASS "SV21TRC3556"
+#define WIFI_SSID "WIFIHUB_53EBF8"
+#define WIFI_PASS "e9uwy47s"
 
 static const char *TAG = "wifi_sntp";
 
