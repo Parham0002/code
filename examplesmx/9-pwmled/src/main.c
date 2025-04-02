@@ -47,7 +47,7 @@ int main(void)
 			pulse_width = 0;
 		}
 
-		k_sleep(K_MSEC(50));
+		k_sleep(K_MSEC(5));
 	}
 
 	return EXIT_SUCCESS;

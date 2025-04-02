@@ -17,7 +17,15 @@
         "set debug-file-directory",
         "set non-stop off"
       ],
-      "showDevDebugOutput": "none"
+      "showDevDebugOutput": "none",
+      "gdbServerConfigs": {
+        "linkserver": {
+          "device": "MCXN236:FRDM-MCXN236",
+          "core": "primary"
+        },
+        "pemicro": {},
+        "segger": {}
+      }
     }
   ]
 }

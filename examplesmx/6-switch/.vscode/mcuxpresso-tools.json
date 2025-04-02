@@ -4,14 +4,6 @@
   "linkedProjects": [],
   "trustZoneType": "none",
   "multicoreType": "none",
-  "debug": {
-    "linkserver": {
-      "device": "MCXN236:FRDM-MCXN236",
-      "core": "primary"
-    },
-    "pemicro": {},
-    "segger": {}
-  },
   "projectType": "zephyr-freestanding",
   "sdk": {
     "version": "4.1.0",

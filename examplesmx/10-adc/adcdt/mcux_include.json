@@ -11,7 +11,7 @@
       "environment": {
         "ZEPHYR_BASE": "${env:HOME}/zephyr/zephyr",
         "ZEPHYR_SDK_INSTALL_DIR": "",
-        "MCUX_VENV_PATH": "${env:HOME}/.mcuxpressotools/.venv/bin",
+        "MCUX_VENV_PATH": "/home/parham/.mcuxpressotools/.venv/bin",
         "PATH": "$env{MCUX_VENV_PATH}:$penv{PATH}"
       }
     },
