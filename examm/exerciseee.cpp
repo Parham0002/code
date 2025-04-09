@@ -265,194 +265,251 @@ int main(int argc, char *argv[])
 #include <thread>
 #include <mutex>
 #include <condition_variable>
-#include <queue>
-#include <atomic>
-#include <random>
-#include <memory>
+#include <string>
+#include <vector>
 
-#ifndef WAREHOUSE_CAPACITY
-#define WAREHOUSE_CAPACITY 10
-#endif
+// Set warehouse capacity (should be > 7)
+#define WAREHOUSE_SIZE 10
 
-// Ensure minimum capacity
-static_assert(WAREHOUSE_CAPACITY > 7, "Warehouse capacity must be greater than 7");
+// Vehicle ID counter
+int next_vehicle_id = 1001;
 
 // Base Vehicle class
 class Vehicle {
 protected:
-    static std::atomic<int> nextId;
     int id;
     std::string model;
 
 public:
-    Vehicle(const std::string& model) : model(model) {
-        id = nextId.fetch_add(1);
-    }
-    virtual ~Vehicle() = default;
-
-    virtual void print() const {
-        std::cout << "ID: " << id << ", Model: " << model;
+    Vehicle(std::string m) {
+        id = next_vehicle_id++;
+        model = m;
     }
 
-    virtual std::string getType() const = 0;
+    virtual ~Vehicle() {}
+
+    int getId() { return id; }
+    std::string getModel() { return model; }
+
+    virtual void printInfo() = 0;
+    virtual std::string getType() = 0;
 };
-
-std::atomic<int> Vehicle::nextId{1001};
 
 // Car class
 class Car : public Vehicle {
 private:
-    int maxPassengers;
+    int passengers;
 
 public:
-    Car(const std::string& model, int maxPassengers)
-        : Vehicle(model), maxPassengers(maxPassengers) {}
-
-    void print() const override {
-        Vehicle::print();
-        std::cout << ", Type: Car, Max Passengers: " << maxPassengers << std::endl;
+    Car(std::string model, int pass) : Vehicle(model) {
+        passengers = pass;
     }
 
-    std::string getType() const override { return "Car"; }
+    void printInfo() override {
+        std::cout << "Car ID: " << id << ", Model: " << model
+                  << ", Max Passengers: " << passengers << std::endl;
+    }
+
+    std::string getType() override {
+        return "Car";
+    }
 };
 
 // Truck class
 class Truck : public Vehicle {
 private:
-    double maxLoadWeight;
+    float max_weight;
 
 public:
-    Truck(const std::string& model, double maxLoadWeight)
-        : Vehicle(model), maxLoadWeight(maxLoadWeight) {}
-
-    void print() const override {
-        Vehicle::print();
-        std::cout << ", Type: Truck, Max Load Weight: " << maxLoadWeight << " tons" << std::endl;
+    Truck(std::string model, float weight) : Vehicle(model) {
+        max_weight = weight;
     }
 
-    std::string getType() const override { return "Truck"; }
+    void printInfo() override {
+        std::cout << "Truck ID: " << id << ", Model: " << model
+                  << ", Max Load: " << max_weight << " tons" << std::endl;
+    }
+
+    std::string getType() override {
+        return "Truck";
+    }
 };
 
-// Warehouse class (thread-safe circular buffer)
+// Warehouse class - circular buffer
 class Warehouse {
 private:
-    std::shared_ptr<Vehicle> buffer[WAREHOUSE_CAPACITY];
-    int head = 0;
-    int tail = 0;
-    int count = 0;
+    Vehicle* buffer[WAREHOUSE_SIZE];
+    int count;
+    int in_pos;
+    int out_pos;
 
     std::mutex mtx;
     std::condition_variable not_full;
     std::condition_variable not_empty;
 
-    // Make warehouse uncopyable
+public:
+    // No copy allowed
     Warehouse(const Warehouse&) = delete;
     Warehouse& operator=(const Warehouse&) = delete;
 
-public:
-    Warehouse() = default;
+    Warehouse() {
+        count = 0;
+        in_pos = 0;
+        out_pos = 0;
 
-    void add(std::shared_ptr<Vehicle> vehicle) {
+        // Initialize buffer
+        for (int i = 0; i < WAREHOUSE_SIZE; i++) {
+            buffer[i] = nullptr;
+        }
+    }
+
+    ~Warehouse() {
+        // Clean up any remaining vehicles
+        for (int i = 0; i < WAREHOUSE_SIZE; i++) {
+            if (buffer[i] != nullptr) {
+                delete buffer[i];
+            }
+        }
+    }
+
+    // Add vehicle to warehouse
+    void storeVehicle(Vehicle* v) {
         std::unique_lock<std::mutex> lock(mtx);
-        not_full.wait(lock, [this] { return count < WAREHOUSE_CAPACITY; });
 
-        buffer[tail] = vehicle;
-        tail = (tail + 1) % WAREHOUSE_CAPACITY;
+        // Wait if warehouse is full
+        while (count == WAREHOUSE_SIZE) {
+            not_full.wait(lock);
+        }
+
+        // Store vehicle
+        buffer[in_pos] = v;
+        in_pos = (in_pos + 1) % WAREHOUSE_SIZE;
         count++;
 
+        // Notify consumers
         not_empty.notify_one();
     }
 
-    std::shared_ptr<Vehicle> get() {
+    // Get vehicle from warehouse
+    Vehicle* getVehicle() {
         std::unique_lock<std::mutex> lock(mtx);
-        not_empty.wait(lock, [this] { return count > 0; });
 
-        auto vehicle = buffer[head];
-        head = (head + 1) % WAREHOUSE_CAPACITY;
+        // Wait if warehouse is empty
+        while (count == 0) {
+            not_empty.wait(lock);
+        }
+
+        // Get vehicle
+        Vehicle* v = buffer[out_pos];
+        buffer[out_pos] = nullptr;
+        out_pos = (out_pos + 1) % WAREHOUSE_SIZE;
         count--;
 
+        // Notify producer
         not_full.notify_one();
-        return vehicle;
+
+        return v;
     }
 };
 
 // Producer function
-void producer(Warehouse& warehouse, bool& running) {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> type_dist(0, 1);
-    std::uniform_int_distribution<> passengers_dist(2, 8);
-    std::uniform_real_distribution<> weight_dist(1.0, 10.0);
+void producerFunction(Warehouse* warehouse, bool* running) {
+    std::string car_models[] = {"Toyota", "Honda", "Ford", "BMW", "Audi"};
+    std::string truck_models[] = {"Volvo", "Mack", "Peterbilt", "Kenworth", "Freightliner"};
 
-    const std::string car_models[] = {"Sedan", "SUV", "Hatchback"};
-    const std::string truck_models[] = {"Pickup", "Semi", "Dump"};
+    while (*running) {
+        // Randomly create car or truck
+        Vehicle* vehicle;
 
-    while (running) {
-        std::shared_ptr<Vehicle> vehicle;
+        // Random vehicle type (0 = car, 1 = truck)
+        int type = rand() % 2;
 
-        if (type_dist(gen) == 0) {
-            // Create a car
-            int model_idx = gen() % 3;
-            vehicle = std::make_shared<Car>(car_models[model_idx], passengers_dist(gen));
+        if (type == 0) {
+            // Create car with random model and passenger capacity
+            int model_idx = rand() % 5;
+            int passengers = 2 + rand() % 6;  // 2-7 passengers
+            vehicle = new Car(car_models[model_idx], passengers);
         } else {
-            // Create a truck
-            int model_idx = gen() % 3;
-            vehicle = std::make_shared<Truck>(truck_models[model_idx], weight_dist(gen));
+            // Create truck with random model and weight capacity
+            int model_idx = rand() % 5;
+            float weight = 1.0f + (rand() % 200) / 10.0f;  // 1.0-21.0 tons
+            vehicle = new Truck(truck_models[model_idx], weight);
         }
 
-        warehouse.add(vehicle);
-        std::cout << "Produced: " << vehicle->getType() << std::endl;
+        // Store in warehouse
+        warehouse->storeVehicle(vehicle);
 
-        // Random production speed
-        std::this_thread::sleep_for(std::chrono::milliseconds(100 + gen() % 300));
+        std::cout << "Produced: " << vehicle->getType() << " (ID: " << vehicle->getId() << ")" << std::endl;
+
+        // Sleep for random time (production rate)
+        std::this_thread::sleep_for(std::chrono::milliseconds(100 + rand() % 400));
     }
 }
 
 // Consumer function
-void consumer(int id, Warehouse& warehouse, bool& running) {
-    std::random_device rd;
-    std::mt19937 gen(rd());
+void consumerFunction(int id, Warehouse* warehouse, bool* running) {
+    while (*running) {
+        // Get vehicle from warehouse
+        Vehicle* vehicle = warehouse->getVehicle();
 
-    while (running) {
-        auto vehicle = warehouse.get();
+        // Print vehicle info
+        std::cout << "Consumer " << id << " received: ";
+        vehicle->printInfo();
 
-        std::cout << "Consumer " << id << " got: ";
-        vehicle->print();
+        // Delete vehicle after use
+        delete vehicle;
 
-        // Random consumption speed
-        std::this_thread::sleep_for(std::chrono::milliseconds(200 + gen() % 500));
+        // Sleep for random time (consumption rate)
+        std::this_thread::sleep_for(std::chrono::milliseconds(200 + rand() % 600));
     }
 }
 
 int main(int argc, char* argv[]) {
-    int num_consumers = (argc > 1) ? std::max(2, std::stoi(argv[1])) : 2;
+    // Seed random number generator
+    srand(time(nullptr));
 
-    std::cout << "Starting with " << num_consumers << " consumers and warehouse capacity of "
-              << WAREHOUSE_CAPACITY << std::endl;
-
-    Warehouse warehouse;
-    bool running = true;
-
-    // Start producer thread
-    std::thread producer_thread(producer, std::ref(warehouse), std::ref(running));
-
-    // Start consumer threads
-    std::vector<std::thread> consumer_threads;
-    for (int i = 1; i <= num_consumers; i++) {
-        consumer_threads.emplace_back(consumer, i, std::ref(warehouse), std::ref(running));
+    // Get number of consumers from command line
+    int num_consumers = 2;  // Default
+    if (argc > 1) {
+        num_consumers = std::stoi(argv[1]);
+        if (num_consumers < 2) num_consumers = 2;  // Minimum 2 consumers
     }
 
+    std::cout << "Starting with " << num_consumers << " consumers" << std::endl;
+    std::cout << "Warehouse capacity: " << WAREHOUSE_SIZE << std::endl;
+
+    // Create warehouse
+    Warehouse warehouse;
+
+    // Control flag for threads
+    bool running = true;
+
+    // Create producer thread
+    std::thread producer(producerFunction, &warehouse, &running);
+
+    // Create consumer threads
+    std::vector<std::thread> consumers;
+    for (int i = 1; i <= num_consumers; i++) {
+        consumers.push_back(std::thread(consumerFunction, i, &warehouse, &running));
+    }
+
+    // Run for a while
     std::cout << "Press Enter to stop..." << std::endl;
     std::cin.get();
 
+    // Stop threads
     running = false;
 
-    producer_thread.join();
-    for (auto& t : consumer_threads) {
+    // Join threads
+    producer.join();
+    for (auto& t : consumers) {
         t.join();
     }
 
+    std::cout << "Program finished." << std::endl;
+
     return 0;
 }
+
 
 */
