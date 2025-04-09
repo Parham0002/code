@@ -198,8 +198,6 @@ void producer(warehouse &warehouse, std::atomic<bool> &running)
 
         warehouse.store(vehicle);
 
-        // std::cout << "produced" << vehicle->gettype() << "with id" << vehicle->getid() << std::endl;
-
         // sleep for a random time to simulate diffrent product rate
         std::this_thread::sleep_for(std::chrono::milliseconds(800));
     }
