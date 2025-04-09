@@ -260,3 +260,199 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
+/*#include <iostream>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <queue>
+#include <atomic>
+#include <random>
+#include <memory>
+
+#ifndef WAREHOUSE_CAPACITY
+#define WAREHOUSE_CAPACITY 10
+#endif
+
+// Ensure minimum capacity
+static_assert(WAREHOUSE_CAPACITY > 7, "Warehouse capacity must be greater than 7");
+
+// Base Vehicle class
+class Vehicle {
+protected:
+    static std::atomic<int> nextId;
+    int id;
+    std::string model;
+
+public:
+    Vehicle(const std::string& model) : model(model) {
+        id = nextId.fetch_add(1);
+    }
+    virtual ~Vehicle() = default;
+
+    virtual void print() const {
+        std::cout << "ID: " << id << ", Model: " << model;
+    }
+
+    virtual std::string getType() const = 0;
+};
+
+std::atomic<int> Vehicle::nextId{1001};
+
+// Car class
+class Car : public Vehicle {
+private:
+    int maxPassengers;
+
+public:
+    Car(const std::string& model, int maxPassengers)
+        : Vehicle(model), maxPassengers(maxPassengers) {}
+
+    void print() const override {
+        Vehicle::print();
+        std::cout << ", Type: Car, Max Passengers: " << maxPassengers << std::endl;
+    }
+
+    std::string getType() const override { return "Car"; }
+};
+
+// Truck class
+class Truck : public Vehicle {
+private:
+    double maxLoadWeight;
+
+public:
+    Truck(const std::string& model, double maxLoadWeight)
+        : Vehicle(model), maxLoadWeight(maxLoadWeight) {}
+
+    void print() const override {
+        Vehicle::print();
+        std::cout << ", Type: Truck, Max Load Weight: " << maxLoadWeight << " tons" << std::endl;
+    }
+
+    std::string getType() const override { return "Truck"; }
+};
+
+// Warehouse class (thread-safe circular buffer)
+class Warehouse {
+private:
+    std::shared_ptr<Vehicle> buffer[WAREHOUSE_CAPACITY];
+    int head = 0;
+    int tail = 0;
+    int count = 0;
+
+    std::mutex mtx;
+    std::condition_variable not_full;
+    std::condition_variable not_empty;
+
+    // Make warehouse uncopyable
+    Warehouse(const Warehouse&) = delete;
+    Warehouse& operator=(const Warehouse&) = delete;
+
+public:
+    Warehouse() = default;
+
+    void add(std::shared_ptr<Vehicle> vehicle) {
+        std::unique_lock<std::mutex> lock(mtx);
+        not_full.wait(lock, [this] { return count < WAREHOUSE_CAPACITY; });
+
+        buffer[tail] = vehicle;
+        tail = (tail + 1) % WAREHOUSE_CAPACITY;
+        count++;
+
+        not_empty.notify_one();
+    }
+
+    std::shared_ptr<Vehicle> get() {
+        std::unique_lock<std::mutex> lock(mtx);
+        not_empty.wait(lock, [this] { return count > 0; });
+
+        auto vehicle = buffer[head];
+        head = (head + 1) % WAREHOUSE_CAPACITY;
+        count--;
+
+        not_full.notify_one();
+        return vehicle;
+    }
+};
+
+// Producer function
+void producer(Warehouse& warehouse, bool& running) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> type_dist(0, 1);
+    std::uniform_int_distribution<> passengers_dist(2, 8);
+    std::uniform_real_distribution<> weight_dist(1.0, 10.0);
+
+    const std::string car_models[] = {"Sedan", "SUV", "Hatchback"};
+    const std::string truck_models[] = {"Pickup", "Semi", "Dump"};
+
+    while (running) {
+        std::shared_ptr<Vehicle> vehicle;
+
+        if (type_dist(gen) == 0) {
+            // Create a car
+            int model_idx = gen() % 3;
+            vehicle = std::make_shared<Car>(car_models[model_idx], passengers_dist(gen));
+        } else {
+            // Create a truck
+            int model_idx = gen() % 3;
+            vehicle = std::make_shared<Truck>(truck_models[model_idx], weight_dist(gen));
+        }
+
+        warehouse.add(vehicle);
+        std::cout << "Produced: " << vehicle->getType() << std::endl;
+
+        // Random production speed
+        std::this_thread::sleep_for(std::chrono::milliseconds(100 + gen() % 300));
+    }
+}
+
+// Consumer function
+void consumer(int id, Warehouse& warehouse, bool& running) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    while (running) {
+        auto vehicle = warehouse.get();
+
+        std::cout << "Consumer " << id << " got: ";
+        vehicle->print();
+
+        // Random consumption speed
+        std::this_thread::sleep_for(std::chrono::milliseconds(200 + gen() % 500));
+    }
+}
+
+int main(int argc, char* argv[]) {
+    int num_consumers = (argc > 1) ? std::max(2, std::stoi(argv[1])) : 2;
+
+    std::cout << "Starting with " << num_consumers << " consumers and warehouse capacity of "
+              << WAREHOUSE_CAPACITY << std::endl;
+
+    Warehouse warehouse;
+    bool running = true;
+
+    // Start producer thread
+    std::thread producer_thread(producer, std::ref(warehouse), std::ref(running));
+
+    // Start consumer threads
+    std::vector<std::thread> consumer_threads;
+    for (int i = 1; i <= num_consumers; i++) {
+        consumer_threads.emplace_back(consumer, i, std::ref(warehouse), std::ref(running));
+    }
+
+    std::cout << "Press Enter to stop..." << std::endl;
+    std::cin.get();
+
+    running = false;
+
+    producer_thread.join();
+    for (auto& t : consumer_threads) {
+        t.join();
+    }
+
+    return 0;
+}
+
+*/
