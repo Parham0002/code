@@ -15,6 +15,6 @@
   "projectType": "zephyr-freestanding",
   "sdk": {
     "version": "4.1.0",
-    "path": "${env:HOME}/zephyr"
+    "path": "/home/parham/zephyr"
   }
 }

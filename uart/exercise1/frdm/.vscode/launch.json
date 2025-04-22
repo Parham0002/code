@@ -7,7 +7,7 @@
       "cwd": "${workspaceRoot}",
       "executable": "",
       "stopAtSymbol": "main",
-      "probeSerialNumber": "",
+      "probeSerialNumber": "4Y1FGPZ2IFJ04",
       "isAttach": false,
       "probeType": "",
       "skipBuildBeforeDebug": false,

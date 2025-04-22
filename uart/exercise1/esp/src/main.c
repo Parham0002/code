@@ -13,8 +13,8 @@
 #define RX_PIN GPIO_NUM_4                // Define RX pin
 #define BUF_SIZE (2 * SOC_UART_FIFO_LEN) // Buffer size shall be greater than SOC_UART_FIFO_LEN
 
-#define WIFI_SSID "MaxPlus"
-#define WIFI_PASS "SV21TRC3556"
+#define WIFI_SSID "YA-OPEN"
+#define WIFI_PASS "utbildning2015"
 
 static const char *TAG = "Exercise";
 
