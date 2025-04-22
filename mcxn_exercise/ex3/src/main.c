@@ -1,48 +1,86 @@
-/*
- * Copyright (c) 2016 Intel Corporation
- *
- * SPDX-License-Identifier: Apache-2.0
- */
-
-#include <stdio.h>
 #include <zephyr/kernel.h>
+#include <zephyr/drivers/pwm.h>
+#include <zephyr/device.h>
 #include <zephyr/drivers/gpio.h>
+#include <stdio.h>
 
-/* 1000 msec = 1 sec */
-#define SLEEP_TIME_MS   1000
+#define PWM_DEVICE_NAME DT_LABEL(DT_NODELABEL(pwm0)) // Adjust this to match your device tree
+#define PWM_CHANNEL 0								 // PWM channel
+#define PWM_PERIOD 1000000							 // PWM period in nanoseconds
+#define FADE_STEP 10000								 // 1% fade step
 
-/* The devicetree node identifier for the "led0" alias. */
-#define LED0_NODE DT_ALIAS(led0)
+// Initialize the PWM device
+const struct device *pwm_dev = DEVICE_DT_GET(DT_NODELABEL(pwm0));
 
-/*
- * A build error on this line means your board is unsupported.
- * See the sample documentation for information on how to fix this.
- */
-static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
+// Metro class for timed events (using k_uptime_ticks)
+class Metro
+{
+private:
+	uint64_t interval_ticks;
+	uint64_t previous_tick;
+
+public:
+	Metro(uint32_t interval_ms)
+	{
+		interval_ticks = k_ms_to_ticks_ceil64(interval_ms);
+		previous_tick = k_uptime_ticks();
+	}
+
+	bool check()
+	{
+		uint64_t now = k_uptime_ticks();
+		if ((now - previous_tick) >= interval_ticks)
+		{
+			previous_tick = now;
+			return true;
+		}
+		return false;
+	}
+};
 
 int main(void)
 {
-	int ret;
-	bool led_state = true;
-
-	if (!gpio_is_ready_dt(&led)) {
-		return 0;
+	if (!device_is_ready(pwm_dev))
+	{
+		printk("PWM device not ready\n");
+		return;
 	}
 
-	ret = gpio_pin_configure_dt(&led, GPIO_OUTPUT_ACTIVE);
-	if (ret < 0) {
-		return 0;
-	}
+	printk("LED PWM fading started!\n");
 
-	while (1) {
-		ret = gpio_pin_toggle_dt(&led);
-		if (ret < 0) {
-			return 0;
+	Metro fadeMetro(30);	// 30ms interval for PWM fade
+	int pwm_duty_cycle = 0; // Start with 0% duty cycle (off)
+	bool fade_in = true;	// Start fading in
+
+	while (1)
+	{
+		if (fadeMetro.check())
+		{
+			if (fade_in)
+			{
+				pwm_duty_cycle += FADE_STEP;
+				if (pwm_duty_cycle >= PWM_PERIOD)
+				{
+					pwm_duty_cycle = PWM_PERIOD;
+					fade_in = false; // Start fading out
+				}
+			}
+			else
+			{
+				pwm_duty_cycle -= FADE_STEP;
+				if (pwm_duty_cycle <= 0)
+				{
+					pwm_duty_cycle = 0;
+					fade_in = true; // Start fading in
+				}
+			}
+
+			// Set the PWM duty cycle
+			pwm_pin_set_usec(pwm_dev, PWM_CHANNEL, PWM_PERIOD, pwm_duty_cycle);
 		}
 
-		led_state = !led_state;
-		printf("LED state: %s\n", led_state ? "ON" : "OFF");
-		k_msleep(SLEEP_TIME_MS);
+		// Let other threads run and provide a small delay to avoid busy looping
+		k_sleep(K_MSEC(10));
 	}
 	return 0;
 }

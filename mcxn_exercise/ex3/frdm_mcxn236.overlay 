@@ -1,0 +1,14 @@
+&pinctrl {
+    pwm1_pins: pwm1-pins {
+        pinmux = <MCXN_PINMUX(3, 12, 1)>;  /* P3_12 = J3:15 for PWM output */
+        drive-strength = "high";
+        slew-rate = "fast";
+        bias-pull-up;
+    };
+};
+
+&flexpwm1_pwm0 {
+    status = "okay";
+    pinctrl-0 = <&pwm1_pins>;
+    pinctrl-names = "default";
+};
