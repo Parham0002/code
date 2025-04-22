@@ -1,0 +1,8 @@
+
+&flexcomm2_lpi2c2 {
+    fxls8974cf: fxls8974cf@18 {
+        compatible = "nxp,fxls8974";
+        reg = <0x18>;  // The sensor I2C address
+        label = "FXLS8974CFR3";
+    };
+};
