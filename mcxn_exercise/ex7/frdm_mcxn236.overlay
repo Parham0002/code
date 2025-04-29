@@ -1,0 +1,4 @@
+&lpadc0 {
+    status = "okay";
+};
+
