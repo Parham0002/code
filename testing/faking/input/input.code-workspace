@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"path": "preprocessor-time"
+		},
+		{
+			"path": "compile-time"
+		},
+		{
+			"path": "link-time"
+		},
+		{
+			"path": "run-time"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"stdlib.h": "c",
+			"stdio.h": "c",
+			"stdbool.h": "c"
+		}
+	}
+}
