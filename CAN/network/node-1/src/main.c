@@ -80,10 +80,12 @@ int main(void)
 		{.id = 0x200, .data = "DDDDDDD", .dlc = DLC},
 		{.id = 0x201, .data = "EEEEEEE", .dlc = DLC},
 		{.id = 0x211, .data = "FFFFFFF", .dlc = DLC},
+		{.id = 0x221, .data = "GGGGGGG", .dlc = DLC},
 	};
 
 	// 0x101 = 001 0000 0001
 	// 0x111 = 001 0001 0001
+	// 0x121 = 001 0010 0001
 	// ----------------------
 	//    id = 001 0000 0001
 
@@ -91,6 +93,11 @@ int main(void)
 	// 0x111 = 001 0001 0001
 	// ---------------------
 	// Mask  = 111 1110 1111
+
+	// 0x111 = 001 0001 0001
+	// 0x121 = 001 0010 0001
+    // ---------------------	
+	// Mask  = 111 1100 1111
 
 	const struct can_filter filter = {.id = 0x101, .mask = 0x7EF};
 	if (0 != can_add_rx_filter(can_dev, can_rx_callback, NULL, &filter))
