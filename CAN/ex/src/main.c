@@ -1,16 +1,3 @@
-/**
- * @file main.c
- * @author Faroch Mehri (faroch.mehri@ya.se)
- * @brief An example of using a CAN controller in loopback mode.
- *        Look at: https://docs.zephyrproject.org/latest/hardware/peripherals/can/controller.html
- *                 https://docs.zephyrproject.org/latest/doxygen/html/group__can__interface.html
- *
- * @version 0.1
- * @date 2025-04-01
- *
- * @copyright Copyright (c) 2025
- *
- */
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/can.h>
 
@@ -77,23 +64,23 @@ int main(void)
 	}
 
 	struct can_frame frames[MSGS] = {
-		{.id = 0x100, .data = "AAAAAAA", .dlc = DLC},
-		{.id = 0x101, .data = "BBBBBBB", .dlc = DLC},
-		{.id = 0x111, .data = "CCCCCCC", .dlc = DLC},
+		{.id = 0x109, .data = "AAAAAAA", .dlc = DLC},
+		{.id = 0x200, .data = "BBBBBBB", .dlc = DLC},
+		{.id = 0x210, .data = "CCCCCCC", .dlc = DLC},
 	};
 
-	// 0x101 = 001 0000 0001
-	// 0x111 = 001 0001 0001
-	// 0x100 = 001 0000 0000
+	// 0x190 = 001 1001 0000
+	// 0x200 = 010 0000 0000
+	// 0x210 = 010 0001 0000
 	// ----------------------
-	//    id = 001 0000 0001
+	//    id = 010 0000 0000
 
-	// 0x101 = 001 0000 0001
-	// 0x111 = 001 0001 0001
+	// 0x200 = 010 0000 0000
+	// 0x210 = 010 0001 0000
 	// ---------------------
 	// Mask  = 111 1110 1111
 
-	const struct can_filter filter = {.id = 0x101, .mask = 0x7EF};
+	const struct can_filter filter = {.id = 0x200, .mask = 0x7EF};
 	if (0 != can_add_rx_filter(can_dev, can_rx_callback, NULL, &filter))
 	{
 		printk("Failed to set the filter\n");
