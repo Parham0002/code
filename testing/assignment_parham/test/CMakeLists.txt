@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-set(PROJECT_NAME assignment)
+set(PROJECT_NAME assignment_Parham)
 
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -9,4 +9,6 @@ add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 
 project(${PROJECT_NAME} VERSION 1.0
                         DESCRIPTION "Assignment"
-                        LANGUAGES C)
+                        LANGUAGES C)   
+
+

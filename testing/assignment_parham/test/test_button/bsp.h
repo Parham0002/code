@@ -14,5 +14,6 @@ bool bsp_pin_config(int pin, int mode, int pull);
 int bsp_pin_read(int pin);
 
 // Helper functions
+void bsp_test_set_pin_level(int level);
 
 #endif /* BSP_H */
