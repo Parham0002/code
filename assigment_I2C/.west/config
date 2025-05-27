@@ -1,0 +1,4 @@
+[manifest]
+path = assignment_frdm
+file = west.yml
+
