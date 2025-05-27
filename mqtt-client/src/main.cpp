@@ -33,7 +33,7 @@ static esp_mqtt_client_handle_t client;
 static const char *MQTT_CLIENTID{"ESP32"};                                             // The client ID
 static const char *MQTT_USERNAME{"parhamrezaei"};                                      // Your username
 static const char *MQTT_PASSWORD{"P1378sezar"};                                        // Your password
-static const char *MQTT_SERVER{"c404e23974ca4682975c2d4f40cbf16f.s1.eu.hivemq.cloud"}; // The server URL
+static const char *MQTT_SERVER{"mqtts://c404e23974ca4682975c2d4f40cbf16f.s1.eu.hivemq.cloud"}; // The server URL
 static const char *TOPIC_LED{"actuator/led"};
 static const char *TOPIC_TEMP{"sensor/temp"};
 static const char *TAG{"mqtt_client"};
