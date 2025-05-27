@@ -76,7 +76,7 @@ int app_main(void)
     while (1)
     {
         printf("Enter the LED state (off, red, green, blue): ");
-        fflush(stdout); // <--- Makes sure it's printed to serial
+        
 
         // Read input from serial properly
         if (fgets(input, sizeof(input), stdin) != NULL)
