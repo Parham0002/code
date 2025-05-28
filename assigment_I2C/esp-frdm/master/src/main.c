@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "driver/i2c.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
+#include <esp_task_wdt.h>
 
+#define MAX_LEN 16
 #define I2C_MASTER_NUM I2C_NUM_0
 #define I2C_MASTER_SCL_IO 7
 #define I2C_MASTER_SDA_IO 6
@@ -68,29 +71,33 @@ static void send_led_state(const char *led_state)
     }
 }
 
-int app_main(void)
+void  get_led_state(char*buffer, size_t len){
+    int i = 0;
+    char ch;
+    while(i < len -1){
+        ch = getchar();
+        if(ch == '\n'){
+            break;
+        }
+        buffer[i++] = ch;
+    }
+    buffer[i] = '\0';
+    putchar('\n');
+}
+void app_main(void)
 {
     ESP_ERROR_CHECK(i2c_master_init());
+    ESP_ERROR_CHECK(esp_task_wdt_delete(xTaskGetIdleTaskHandle()));
 
-    char input[16];
+    char led_state[MAX_LEN];
     while (1)
     {
         printf("Enter the LED state (off, red, green, blue): ");
-        
+        get_led_state(led_state, sizeof(led_state));
 
-        // Read input from serial properly
-        if (fgets(input, sizeof(input), stdin) != NULL)
-        {
-            // Remove newline character if present
-            input[strcspn(input, "\n")] = 0;
-            send_led_state(input);
-        }
-        else
-        {
-            printf("Input error\n");
-        }
-
+        // send the LED state to the slave
+        send_led_state(led_state);
+        // wait for the slave to respond
         vTaskDelay(pdMS_TO_TICKS(500));
     }
-    return 0;
 }

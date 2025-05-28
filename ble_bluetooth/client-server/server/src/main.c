@@ -10,6 +10,8 @@
 #include "services/gap/ble_svc_gap.h"
 #include "services/gatt/ble_svc_gatt.h"
 #include "nimble/nimble_port_freertos.h"
+#include <driver/gpio.h>
+#include <esp_task_wdt.h>
 
 #define TAG "SERVER"
 #define DEVICE_NAME "BLE_SERVER"
@@ -25,8 +27,8 @@ static uint16_t ble_svc_gatt_read_val_handle;
 
 // For random static address, 2 MSB bits of the first byte shall be 0b11.
 // I.e. addr[5] shall be in the range of 0xC0 to 0xFF
-static const uint8_t server_addr[] = {0x01, 0x02, 0x03, 0x04, 0x05, 0xC0};
-static const uint8_t client_addr[] = {0x10, 0x20, 0x30, 0x40, 0x50, 0xC0};
+static const uint8_t server_addr[] = {0x01, 0x02, 0x13, 0x04, 0x05, 0xC0};
+static const uint8_t client_addr[] = {0x10, 0x20, 0x31, 0x40, 0x50, 0xC0};
 
 static const struct ble_gatt_svc_def new_ble_svc_gatt_defs[] = {
     {
@@ -293,6 +295,21 @@ int gatt_svr_init(void)
 
 void app_main(void)
 {
+    ESP_ERROR_CHECK(gpio_reset_pin(GPIO_NUM_4));
+
+    ESP_ERROR_CHECK(gpio_set_direction(GPIO_NUM_4, GPIO_MODE_OUTPUT)); // Configure pin 4 as a digital output pin
+    ESP_ERROR_CHECK(esp_task_wdt_delete(xTaskGetIdleTaskHandle()));
+    
+    uint32_t state = 0;
+
+    while (1)
+    {
+        state = !state;
+
+        ESP_ERROR_CHECK(gpio_set_level(GPIO_NUM_4, state));
+
+    }
+
     esp_err_t status = nvs_flash_init();
     if (status == ESP_ERR_NVS_NO_FREE_PAGES || status == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {

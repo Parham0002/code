@@ -30,6 +30,7 @@ void reverseanduppercase(char *str)
 
 void app_main(void)
 {
+    ESP_ERROR_CHECK(xTaskGetIdleTaskHandle);
     char input[MAX_LENGTH + 1]; // +1 for null terminator
 
     while (1)
