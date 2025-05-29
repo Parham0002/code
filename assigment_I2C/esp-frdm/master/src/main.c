@@ -37,7 +37,7 @@ void get_led_state(uint8_t *buffer, size_t len)
         }
         else if (ch >= 'a' && ch <= 'z')
         {
-            putchar(ch); // Echo character
+            putchar(ch); 
             buffer[i++] = ch;
         }
         else

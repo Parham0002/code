@@ -52,9 +52,9 @@ static int on_write_received(struct i2c_target_config *config, uint8_t val)
 {
 	if (val == '\n' || val == '\r')
 	{
-		buffer[count] = '\0'; // Null-terminate string
+		buffer[count] = '\0'; 
 
-		// Debug print
+		
 		printk("Received command: %s\n", buffer);
 
 		// First, always turn off LED
@@ -107,7 +107,7 @@ int main(void)
 	if (!device_is_ready(i2c_dev))
 	{
 		printk("I2C device not ready!\n");
-		return -1;
+		exit(EXIT_FAILURE);
 	}
 
 	gpio_pin_configure_dt(&red_led, GPIO_OUTPUT_INACTIVE);
@@ -131,7 +131,7 @@ int main(void)
 	if (i2c_target_register(i2c_dev, &config) != 0)
 	{
 		printk("I2C target register failed\n");
-		return -1;
+		exit(EXIT_FAILURE);
 	}
 
 	while (1)
