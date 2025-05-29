@@ -1,9 +1,6 @@
 / {
-    aliases {
-        i2c-slave = &flexcomm2_lpi2c2;
-    };
-};
-
-&flexcomm2_lpi2c2 {
-    status = "okay";
+	zephyr,user {
+		i2c = <&flexcomm2_lpi2c2>; /* The I2C device */
+		address = <0x55>; /* The I2C address */
+	};
 };

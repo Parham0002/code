@@ -1,103 +1,108 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <unistd.h>
 #include "driver/i2c.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
+#include <driver/i2c_master.h>
 #include <esp_task_wdt.h>
 
-#define MAX_LEN 16
-#define I2C_MASTER_NUM I2C_NUM_0
-#define I2C_MASTER_SCL_IO 7
-#define I2C_MASTER_SDA_IO 6
-#define I2C_MASTER_FREQ_HZ 100000
-#define I2C_MASTER_TX_BUF_DISABLE 0
-#define I2C_MASTER_RX_BUF_DISABLE 0
-#define WRITE_BIT I2C_MASTER_WRITE
-#define READ_BIT I2C_MASTER_READ
-#define ACK_CHECK_EN 0x1
-#define SLAVE_ADDR 0x55
+#define MAX_LEN 5
+#define MASTER I2C_NUM_0
+#define PIN_SDA GPIO_NUM_6 // GPIO for SDA
+#define PIN_SCL GPIO_NUM_7 // GPIO for SCL
+#define CLOCK_RATE 400000  // Communication Speed
+#define SLAVE_ADDRESS 0x55 // Slave Address
+#define MSG_SIZE 8         // Buffer Length
 
-static esp_err_t i2c_master_init(void)
+void get_led_state(uint8_t *buffer, size_t len)
 {
-    i2c_config_t conf = {
-        .mode = I2C_MODE_MASTER,
-        .sda_io_num = I2C_MASTER_SDA_IO,
-        .sda_pullup_en = GPIO_PULLUP_ENABLE,
-        .scl_io_num = I2C_MASTER_SCL_IO,
-        .scl_pullup_en = GPIO_PULLUP_ENABLE,
-        .master.clk_speed = I2C_MASTER_FREQ_HZ,
-    };
-    ESP_ERROR_CHECK(i2c_param_config(I2C_MASTER_NUM, &conf));
-    return i2c_driver_install(I2C_MASTER_NUM, conf.mode, 0, 0, 0);
-}
+    while (getchar() != EOF)
+        ;
 
-static void send_led_state(const char *led_state)
-{
-    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-    i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, (SLAVE_ADDR << 1) | WRITE_BIT, ACK_CHECK_EN);
-    i2c_master_write(cmd, (const uint8_t *)led_state, strlen(led_state), ACK_CHECK_EN);
-    i2c_master_stop(cmd);
-    esp_err_t ret = i2c_master_cmd_begin(I2C_MASTER_NUM, cmd, pdMS_TO_TICKS(1000));
-    i2c_cmd_link_delete(cmd);
-
-    if (ret == ESP_OK)
+    int i = 0;
+    char ch = 0;
+    while (1)
     {
-        vTaskDelay(pdMS_TO_TICKS(100)); // Short delay before reading response
-        uint8_t response[8];
-        memset(response, 0, sizeof(response));
-        i2c_cmd_handle_t rcmd = i2c_cmd_link_create();
-        i2c_master_start(rcmd);
-        i2c_master_write_byte(rcmd, (SLAVE_ADDR << 1) | READ_BIT, ACK_CHECK_EN);
-        i2c_master_read(rcmd, response, sizeof(response) - 1, I2C_MASTER_LAST_NACK);
-        i2c_master_stop(rcmd);
-        ret = i2c_master_cmd_begin(I2C_MASTER_NUM, rcmd, pdMS_TO_TICKS(1000));
-        i2c_cmd_link_delete(rcmd);
-
-        if (ret == ESP_OK && strcmp((char *)response, "OK") == 0)
+        ch = getchar();
+        if ((ch == '\n') && (i == 0))
         {
-            printf("=> done\n\n");
+            printf("Enter the LED state (off, red, green, blue): ");
+        }
+        else if (ch == '\n')
+        {
+            break;
+        }
+        else if (ch >= 'a' && ch <= 'z')
+        {
+            putchar(ch); // Echo character
+            buffer[i++] = ch;
         }
         else
         {
-            printf("=> failed\n\n");
         }
-    }
-    else
-    {
-        printf("=> failed\n\n");
-    }
-}
-
-void  get_led_state(char*buffer, size_t len){
-    int i = 0;
-    char ch;
-    while(i < len -1){
-        ch = getchar();
-        if(ch == '\n'){
-            break;
-        }
-        buffer[i++] = ch;
     }
     buffer[i] = '\0';
-    putchar('\n');
 }
+
 void app_main(void)
 {
-    ESP_ERROR_CHECK(i2c_master_init());
-    ESP_ERROR_CHECK(esp_task_wdt_delete(xTaskGetIdleTaskHandle()));
+    ESP_ERROR_CHECK(esp_task_wdt_deinit());
+    i2c_master_bus_handle_t bus_handle;
+    i2c_master_bus_config_t bus_config = {
+        .i2c_port = MASTER,
+        .sda_io_num = PIN_SDA,
+        .scl_io_num = PIN_SCL,
+        .clk_source = I2C_CLK_SRC_DEFAULT,
+        .glitch_ignore_cnt = 7,
+        .flags.enable_internal_pullup = true,
+    };
+    ESP_ERROR_CHECK(i2c_new_master_bus(&bus_config, &bus_handle));
 
-    char led_state[MAX_LEN];
+    i2c_master_dev_handle_t dev_handle;
+    i2c_device_config_t dev_config = {
+        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
+        .device_address = SLAVE_ADDRESS,
+        .scl_speed_hz = CLOCK_RATE,
+    };
+    ESP_ERROR_CHECK(i2c_master_bus_add_device(bus_handle, &dev_config, &dev_handle));
+
+    uint8_t buffer[MAX_LEN + 1];
     while (1)
     {
         printf("Enter the LED state (off, red, green, blue): ");
-        get_led_state(led_state, sizeof(led_state));
+        get_led_state(buffer, sizeof(buffer));
 
-        // send the LED state to the slave
-        send_led_state(led_state);
-        // wait for the slave to respond
-        vTaskDelay(pdMS_TO_TICKS(500));
+        strcat((char *)buffer, "\n");
+
+        if (ESP_OK == i2c_master_transmit(dev_handle, buffer, strlen((char *)buffer), -1))
+        {
+            if (ESP_OK == i2c_master_receive(dev_handle, buffer, MAX_LEN, -1))
+            {
+                if (strcmp((const char *)buffer, "ok") == 0)
+                {
+                    printf(" => done");
+                }
+                else if (strcmp((const char *)buffer, "fail") == 0)
+                {
+                    printf(" => failed");
+                }
+                else
+                {
+                }
+            }
+            else
+            {
+                printf("Failed Recieved");
+            }
+            printf("\n");
+        }
+        else
+        {
+            printf("Failed Transmit");
+        }
+        printf("\n");
     }
 }
