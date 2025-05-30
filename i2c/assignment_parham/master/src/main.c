@@ -10,13 +10,13 @@
  * @copyright Copyright (c) 2025
  *
  */
+#include <ctype.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <esp_log.h>
-#include <esp_random.h>
 #include <driver/gpio.h>
+#include <esp_task_wdt.h>
 #include <driver/i2c_master.h>
-#include <bootloader_random.h>
 
 #define MASTER I2C_NUM_0
 #define PIN_SDA GPIO_NUM_6 // GPIO for SDA
@@ -50,52 +50,52 @@ void app_main(void)
 
     ESP_LOGI(TAG, "I2C Master initialized successfully");
 
-    sleep(2);
-
-    printf("\n============= I2C Devices =============\n");
-    for (int addr = 0; addr < 128; addr++)
-    {
-        if (ESP_OK == i2c_master_probe(bus_handle, addr, 50))
-        {
-            printf("I2C device found at address 0x%02X\n", addr);
-        }
-    }
-    printf("=======================================\n\n");
-
-    // Look at: https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/random.html
-    bootloader_random_enable();
-    srand(esp_random());
-    bootloader_random_disable();
-
-    uint8_t buffer[MSG_SIZE + 1] = {0};
-
     while (1)
     {
-        for (int i = 0; i < MSG_SIZE; i++)
-        {
-            buffer[i] = 'a' + (rand() % 26);
-        }
+        char chr;
+        int i = 0;
+        uint8_t buffer[MSG_SIZE] = {0};
 
-        printf("    Sent: ");
-        if (ESP_OK == i2c_master_transmit(dev_handle, buffer, MSG_SIZE, -1))
+        printf("Enter a LED state (off, red, green, blue): ");
+
+        ESP_ERROR_CHECK(esp_task_wdt_delete(xTaskGetIdleTaskHandle()));
+        while (i < sizeof(buffer) - 1)
         {
-            printf("%s\nReceived: ", buffer);
-            if (ESP_OK == i2c_master_receive(dev_handle, buffer, MSG_SIZE, -1))
+            chr = getchar();
+            if (chr == '\n')
             {
-                printf("%s", buffer);
+                break;
+            }
+            else if (isalpha(chr))
+            {
+                putchar(chr);
+                buffer[i++] = toupper(chr);
             }
             else
             {
-                printf("Failed");
+                ;
             }
-            printf("\n");
         }
-        else
+        ESP_ERROR_CHECK(esp_task_wdt_add(xTaskGetIdleTaskHandle()));
+
+        if (i > 0)
         {
-            printf("Failed");
+            if (ESP_OK == i2c_master_transmit(dev_handle, buffer, MSG_SIZE, -1))
+            {
+                if (ESP_OK == i2c_master_receive(dev_handle, buffer, MSG_SIZE, -1))
+                {
+                    printf(" => %s", buffer);
+                }
+                else
+                {
+                    printf(" => failed");
+                }
+            }
+            else
+            {
+                printf(" => failed");
+            }
         }
         printf("\n");
-
-        sleep(1);
     }
 }

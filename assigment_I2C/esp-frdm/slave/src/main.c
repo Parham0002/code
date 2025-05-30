@@ -8,7 +8,6 @@
 #define I2C_NODE DT_PROP(DT_PATH(zephyr_user), i2c)
 #define ADDRESS DT_PROP(DT_PATH(zephyr_user), address)
 
-
 #define RED_NODE DT_ALIAS(led0)
 #define GREEN_NODE DT_ALIAS(led1)
 #define BLUE_NODE DT_ALIAS(led2)
@@ -26,7 +25,6 @@ static void turn_off_all_leds(void)
 	gpio_pin_set_dt(&green_led, 1);
 	gpio_pin_set_dt(&blue_led, 1);
 }
-
 
 static void set_color(const char *color)
 {
@@ -52,20 +50,17 @@ static int on_write_received(struct i2c_target_config *config, uint8_t val)
 {
 	if (val == '\n' || val == '\r')
 	{
-		buffer[count] = '\0'; 
+		buffer[count] = '\0';
 
-		
 		printk("Received command: %s\n", buffer);
 
-		// First, always turn off LED
 		turn_off_all_leds();
 
-		// Check and apply command
 		if (strcmp((char *)buffer, "red") == 0 ||
 			strcmp((char *)buffer, "green") == 0 ||
 			strcmp((char *)buffer, "blue") == 0)
 		{
-			set_color((char *)buffer); 
+			set_color((char *)buffer);
 			strcpy((char *)buffer, "ok");
 		}
 		else if (strcmp((char *)buffer, "off") == 0)
@@ -77,7 +72,7 @@ static int on_write_received(struct i2c_target_config *config, uint8_t val)
 			strcpy((char *)buffer, "fail");
 		}
 
-		count = 0; 
+		count = 0;
 	}
 	else if (count < MSG_SIZE - 1)
 	{
@@ -136,6 +131,8 @@ int main(void)
 
 	while (1)
 	{
+		k_sleep(K_FOREVER);
 	}
+
 	return 0;
 }
