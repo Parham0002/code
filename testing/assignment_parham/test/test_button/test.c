@@ -55,7 +55,21 @@ void test_button_no_change_if_not_stable(void)
     TEST_ASSERT_EQUAL(BUTTON_RELEASED, button_get_state()); // Not enough samples to change
 }
 
+void test_button_init_configures_pin_correctly(void)
+{
+    int pin = 4;
+    button_init(pin);
+
+    TEST_ASSERT_EQUAL(pin, bsp_test_get_last_configured_pin());
+    TEST_ASSERT_EQUAL(BSP_MODE_INPUT, bsp_test_get_last_pin_mode());
+    TEST_ASSERT_EQUAL(BSP_PULL_UP, bsp_test_get_last_pin_pull());
+}
+
+#if defined(RUNNING_ON_PC)
+int main(void)
+#else
 int app_main(void)
+#endif
 {
     UNITY_BEGIN();
 

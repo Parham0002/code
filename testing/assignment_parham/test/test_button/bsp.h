@@ -16,4 +16,10 @@ int bsp_pin_read(int pin);
 // Helper functions
 void bsp_test_set_pin_level(int level);
 
+int bsp_test_get_last_configured_pin(void);
+
+int bsp_test_get_last_pin_mode(void);
+
+int bsp_test_get_last_pin_pull(void);
+
 #endif /* BSP_H */
